@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kill the Cockroaches</title>
+    <link rel="icon" type="image/png" href="assets/icon.png">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#2b2b2b">
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background: #2b2b2b; /* Dark gray background */
+            font-family: Arial, sans-serif;
+        }
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+        .slipper-cursor {
+            cursor: url('assets/slipper_32.png') 16 16, auto !important;
+        }
+        @media (max-width: 600px) {
+            .slipper-cursor {
+                cursor: url('assets/slipper_32.png') 12 12, auto !important;
+            }
+        }
+        @media (min-width: 1200px) {
+            .slipper-cursor {
+                cursor: url('assets/slipper_32.png') 20 20, auto !important;
+            }
+        }
+        #ui {
+            position: absolute;
+            top: 1vw;
+            left: 1vw;
+            color: #b0b0b0; /* Light gray text */
+            display: inline-block;
+            vertical-align: middle;
+            font-size: clamp(12px, 2.5vw, 16px);
+        }
+        #muteBtn {
+            position: absolute;
+            top: 1vw;
+            right: 1vw;
+            padding: clamp(6px, 1vw, 8px) clamp(10px, 1.5vw, 12px);
+            background: #4a2f1a; /* Deep muted brown button */
+            color: white;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            display: inline-block;
+            vertical-align: middle;
+            font-size: clamp(12px, 2vw, 14px);
+        }
+        #muteBtn:hover {
+            background: #5c3a22; /* Lighter muted brown on hover */
+        }
+        #offline {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(20, 20, 20, 0.8); /* Dark gray semi-transparent */
+            color: white;
+            padding: clamp(15px, 3vw, 20px);
+            border-radius: 5px;
+            font-size: clamp(14px, 3vw, 18px);
+        }
+        #gameTitle {
+            position: absolute;
+            top: 1vw;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: clamp(18px, 4vw, 24px);
+            font-weight: bold;
+            color: #b0b0b0; /* Light gray text */
+            text-align: center;
+            display: inline-block;
+            vertical-align: middle;
+            margin: 0 clamp(15px, 2vw, 20px);
+        }
+        #gameInstructions {
+            position: absolute;
+            bottom: 1vw;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: clamp(12px, 2.5vw, 16px);
+            color: #b0b0b0; /* Light gray text */
+            text-align: center;
+            max-width: 90%;
+        }
+        #gameOver {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(20, 20, 20, 0.8); /* Dark gray semi-transparent */
+            color: white;
+            padding: clamp(15px, 3vw, 20px);
+            border-radius: 5px;
+            font-size: clamp(18px, 4vw, 24px);
+            text-align: center;
+        }
+        #startScreen {
+            display: block;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(20, 20, 20, 0.8); /* Dark gray semi-transparent */
+            color: white;
+            padding: clamp(15px, 3vw, 20px);
+            border-radius: 5px;
+            text-align: center;
+        }
+        #startScreen h2 {
+            font-size: clamp(20px, 5vw, 28px);
+            margin: 0 0 10px;
+        }
+        #startScreen p {
+            font-size: clamp(14px, 3vw, 18px);
+            margin: 0 0 10px;
+        }
+        #startBtn {
+            margin-top: 10px;
+            padding: clamp(8px, 1.5vw, 10px) clamp(15px, 2.5vw, 20px);
+            background: #4a2f1a; /* Deep muted brown button */
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: clamp(14px, 2.5vw, 16px);
+        }
+        #startBtn:hover {
+            background: #5c3a22; /* Lighter muted brown on hover */
+        }
+        #playAgainBtn {
+            margin-top: 10px;
+            padding: clamp(8px, 1.5vw, 10px) clamp(15px, 2.5vw, 20px);
+            background: #4a2f1a; /* Deep muted brown button */
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: clamp(14px, 2.5vw, 16px);
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        #playAgainBtn:hover {
+            background: #5c3a22; /* Lighter muted brown on hover */
+        }
+        #highScore {
+            font-size: clamp(16px, 3.5vw, 20px);
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body class="slipper-cursor">
+    <div id="gameTitle">Kill the Cockroaches!</div>
+    <div id="gameInstructions">In 90 seconds kill as many cockroaches as you can. Enjoy Killing!</div>
+    <div id="ui">
+        <span>Time: <span id="timer">90</span>s</span>
+        <span style="margin-left: 20px;">Kills: <span id="kills">0</span></span>
+    </div>
+    <button id="muteBtn">Mute</button>
+    <div id="offline">No Internet Connection</div>
+    <div id="startScreen">
+        <h2>Kill the Cockroaches!</h2>
+        <p>Click the cockroaches to kill them within 90 seconds!</p>
+        <button id="startBtn">Start</button>
+    </div>
+    <div id="gameOver">
+        <div>Game Over! Kills: <span id="finalKills">0</span></div>
+        <div id="highScore">High Score: <span id="highScoreValue">0</span></div>
+        <button id="playAgainBtn">Play Again</button>
+    </div>
+    <canvas id="gameCanvas"></canvas>
+    <audio id="bgMusic" loop src="assets/music.mp3"></audio>
+    <audio id="killSound" src="assets/kill.mp3"></audio>
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const bgMusic = document.getElementById('bgMusic');
+        const killSound = document.getElementById('killSound');
+        const muteBtn = document.getElementById('muteBtn');
+        const offlineDiv = document.getElementById('offline');
+        const timerDisplay = document.getElementById('timer');
+        const killsDisplay = document.getElementById('kills');
+        const gameOverDiv = document.getElementById('gameOver');
+        const finalKillsDisplay = document.getElementById('finalKills');
+        const highScoreDisplay = document.getElementById('highScoreValue');
+        const startScreen = document.getElementById('startScreen');
+        const startBtn = document.getElementById('startBtn');
+        const playAgainBtn = document.getElementById('playAgainBtn');
+
+        let width, height, cockroaches = [], kills = 0, time = 90 * 1000, spawnRate = 2000, spawnCount = 1;
+        let isMuted = false, gameOver = false, gameStarted = false;
+        let misses = []; // Array for "Miss" texts
+        let messages = []; // Array for spawn rate messages
+        const GAME_DURATION = 90 * 1000; // 90 seconds
+        let COCKROACH_LIFETIME = 1000; // 1 second, adjustable
+        const SPAWN_STAGGER_DELAY = 300; // 300ms between spawns
+        const DISAPPEARANCE_MIN_INTERVAL = 300; // 300ms min for disappearance
+        const DISAPPEARANCE_MAX_INTERVAL = 500; // 500ms max for disappearance
+        const FADE_DURATION = 600; // 600ms fade-out for dead cockroaches
+        const POPUP_DURATION = 600; // 600ms pop-up animation for spawning
+        const MISS_DURATION = 1200; // 1200ms for "Miss" text fade-out
+        const MESSAGE_DURATION = 2000; // 2000ms for spawn rate message fade-out
+        let highScore = localStorage.getItem('highScore') ? parseInt(localStorage.getItem('highScore')) : 0;
+        let removalQueue = [];
+        let isProcessingQueue = false;
+        highScoreDisplay.textContent = highScore;
+
+        function ensureSlipperCursor() {
+            document.body.classList.add('slipper-cursor');
+            canvas.classList.add('slipper-cursor');
+            // Debug: Log current cursor style
+            console.log('Body cursor style:', getComputedStyle(document.body).cursor);
+            console.log('Canvas cursor style:', getComputedStyle(canvas).cursor);
+        }
+
+        function resizeCanvas() {
+            width = window.innerWidth;
+            height = window.innerHeight;
+            canvas.width = width * window.devicePixelRatio;
+            canvas.height = height * window.devicePixelRatio;
+            ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+            canvas.style.width = `${width}px`;
+            canvas.style.height = `${height}px`;
+            // Adjust spawn rate and lifetime for smaller screens
+            spawnRate = width < 600 ? 2500 : 2000;
+            COCKROACH_LIFETIME = width < 600 ? 1200 : 1000;
+            ensureSlipperCursor();
+        }
+
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        const images = {
+            cockroach: new Image(),
+            deadCockroach: new Image(),
+            slipper: new Image()
+        };
+        images.cockroach.src = 'assets/cockroach.png';
+        images.deadCockroach.src = 'assets/dead_cockroach.png';
+        images.slipper.src = 'assets/slipper_32.png'; // Use 'slipper.png' if not resized
+
+        class Cockroach {
+            constructor() {
+                this.size = Math.min(Math.max(30, 0.05 * width), 60); // 5vw, clamped between 30px and 60px
+                this.x = Math.random() * (width - this.size);
+                this.y = Math.random() * (height - this.size);
+                this.isDead = false;
+                this.deadTime = 0;
+                this.spawnTime = 0;
+                this.markedForRemoval = false;
+                this.opacity = 1;
+                this.scale = 0;
+                this.isPoppingUp = true;
+            }
+
+            draw() {
+                if (!this.markedForRemoval && this.opacity > 0) {
+                    ctx.save();
+                    ctx.globalAlpha = this.opacity;
+                    ctx.translate(this.x + this.size / 2, this.y + this.size / 2);
+                    ctx.scale(this.scale, this.scale);
+                    ctx.translate(-this.size / 2, -this.size / 2);
+                    ctx.drawImage(this.isDead ? images.deadCockroach : images.cockroach, 0, 0, this.size, this.size);
+                    ctx.restore();
+                }
+            }
+
+            update(deltaTime) {
+                if (this.markedForRemoval) return false;
+
+                if (this.isPoppingUp) {
+                    this.spawnTime += deltaTime;
+                    this.scale = Math.min(1, this.spawnTime / POPUP_DURATION);
+                    if (this.scale >= 1) {
+                        this.isPoppingUp = false;
+                        this.spawnTime = 0;
+                    }
+                } else if (this.isDead) {
+                    this.deadTime += deltaTime;
+                    this.opacity = 1 - (this.deadTime / FADE_DURATION);
+                    if (this.opacity <= 0 && !this.markedForRemoval) {
+                        this.markedForRemoval = true;
+                        removalQueue.push(this);
+                        processRemovalQueue();
+                        return false;
+                    }
+                } else {
+                    this.spawnTime += deltaTime;
+                    if (this.spawnTime > COCKROACH_LIFETIME && !this.markedForRemoval) {
+                        this.markedForRemoval = true;
+                        misses.push(new MissText(this.x + this.size / 2, this.y - 10));
+                        removalQueue.push(this);
+                        processRemovalQueue();
+                        return false;
+                    }
+                }
+                return true;
+            }
+        }
+
+        class MissText {
+            constructor(x, y) {
+                this.x = x;
+                this.y = y;
+                this.opacity = 1;
+                this.time = 0;
+            }
+
+            draw() {
+                ctx.save();
+                ctx.globalAlpha = this.opacity;
+                ctx.font = 'bold 24px Arial';
+                ctx.fillStyle = '#ff4040'; // Brighter red for miss text
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.shadowColor = 'black';
+                ctx.shadowBlur = 2;
+                ctx.fillText('Miss', this.x, this.y);
+                ctx.restore();
+            }
+
+            update(deltaTime) {
+                this.time += deltaTime;
+                this.opacity = 1 - (this.time / MISS_DURATION);
+                return this.opacity > 0;
+            }
+        }
+
+        class MessageText {
+            constructor(x, y, text) {
+                this.x = x;
+                this.y = y;
+                this.text = text;
+                this.opacity = 1;
+                this.time = 0;
+            }
+
+            draw() {
+                ctx.save();
+                ctx.globalAlpha = this.opacity;
+                ctx.font = `bold ${clamp(20, 4 * width / 100, 24)}px Arial`;
+                ctx.fillStyle = 'red'; // Red for faster spawn message
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(this.text, this.x, this.y);
+                ctx.restore();
+            }
+
+            update(deltaTime) {
+                this.time += deltaTime;
+                this.opacity = 1 - (this.time / MESSAGE_DURATION);
+                return this.opacity > 0;
+            }
+        }
+
+        function clamp(min, val, max) {
+            return Math.min(Math.max(min, val), max);
+        }
+
+        function processRemovalQueue() {
+            if (removalQueue.length > 0 && !isProcessingQueue) {
+                isProcessingQueue = true;
+                const cockroach = removalQueue.shift();
+                cockroaches = cockroaches.filter(c => c !== cockroach);
+                const delay = DISAPPEARANCE_MIN_INTERVAL + Math.random() * (DISAPPEARANCE_MAX_INTERVAL - DISAPPEARANCE_MIN_INTERVAL);
+                setTimeout(() => {
+                    isProcessingQueue = false;
+                    processRemovalQueue();
+                }, delay);
+            }
+        }
+
+        function spawnCockroaches() {
+            if (!gameOver && gameStarted) {
+                for (let i = 0; i < spawnCount; i++) {
+                    setTimeout(() => {
+                        if (!gameOver && gameStarted) {
+                            cockroaches.push(new Cockroach());
+                        }
+                    }, i * SPAWN_STAGGER_DELAY);
+                }
+                setTimeout(spawnCockroaches, spawnRate);
+            }
+        }
+
+        function updateSpawnDifficulty() {
+            if (!gameOver && gameStarted) {
+                const oldSpawnRate = spawnRate;
+                const oldSpawnCount = spawnCount;
+                spawnRate = Math.max(500, spawnRate * 0.9);
+                spawnCount = Math.min(5, spawnCount + 1);
+                if (spawnRate !== oldSpawnRate || spawnCount !== oldSpawnCount) {
+                    messages.push(new MessageText(width / 2, height / 2, 'Faster Spawn!'));
+                }
+            }
+        }
+
+        function resetGame(autoStart = false) {
+            kills = 0;
+            time = GAME_DURATION;
+            spawnRate = width < 600 ? 2500 : 2000;
+            spawnCount = 1;
+            cockroaches = [];
+            misses = [];
+            messages = [];
+            removalQueue = [];
+            isProcessingQueue = false;
+            gameOver = false;
+            killsDisplay.textContent = kills;
+            timerDisplay.textContent = Math.ceil(time / 1000);
+            gameOverDiv.style.display = 'none';
+            ctx.clearRect(0, 0, width, height);
+            ensureSlipperCursor();
+
+            if (autoStart) {
+                gameStarted = true;
+                startScreen.style.display = 'none';
+                spawnCockroaches();
+                if (!isMuted) {
+                    bgMusic.play().catch(err => console.error('Background music error:', err));
+                }
+            } else {
+                gameStarted = false;
+                startScreen.style.display = 'block';
+            }
+        }
+
+        canvas.addEventListener('click', (e) => {
+            if (gameOver || !gameStarted) return;
+
+            const rect = canvas.getBoundingClientRect();
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
+            const clickX = (e.clientX - rect.left) * scaleX / window.devicePixelRatio;
+            const clickY = (e.clientY - rect.top) * scaleY / window.devicePixelRatio;
+
+            for (let i = cockroaches.length - 1; i >= 0; i--) {
+                const c = cockroaches[i];
+                if (!c.isDead && !c.markedForRemoval &&
+                    clickX >= c.x && clickX <= c.x + c.size &&
+                    clickY >= c.y && clickY <= c.y + c.size) {
+                    c.isDead = true;
+                    kills++;
+                    killsDisplay.textContent = kills;
+                    if (!isMuted) {
+                        killSound.currentTime = 0;
+                        killSound.play().catch(err => console.error('Kill sound error:', err));
+                    }
+                    break;
+                }
+            }
+        });
+
+        muteBtn.addEventListener('click', () => {
+            isMuted = !isMuted;
+            muteBtn.textContent = isMuted ? 'Unmute' : 'Mute';
+            bgMusic.muted = isMuted;
+            killSound.muted = isMuted;
+            if (!isMuted && bgMusic.paused) {
+                bgMusic.play().catch(err => console.error('Background music error:', err));
+            }
+            ensureSlipperCursor();
+        });
+
+        startBtn.addEventListener('click', () => {
+            resetGame(true);
+        });
+
+        playAgainBtn.addEventListener('click', () => {
+            resetGame(true);
+        });
+
+        function checkOnlineStatus() {
+            offlineDiv.style.display = navigator.onLine ? 'none' : 'block';
+            ensureSlipperCursor();
+        }
+
+        window.addEventListener('online', checkOnlineStatus);
+        window.addEventListener('offline', checkOnlineStatus);
+        checkOnlineStatus();
+
+        let lastTime = 0;
+        function gameLoop(timestamp) {
+            if (!gameStarted) {
+                ctx.clearRect(0, 0, width, height);
+                requestAnimationFrame(gameLoop);
+                return;
+            }
+
+            const deltaTime = timestamp - lastTime;
+            lastTime = timestamp;
+
+            if (!gameOver) {
+                time -= deltaTime;
+                const remainingSeconds = Math.ceil(time / 1000);
+                timerDisplay.textContent = remainingSeconds;
+
+                if (time <= 0) {
+                    gameOver = true;
+                    time = 0;
+                    timerDisplay.textContent = 0;
+                    if (kills > highScore) {
+                        highScore = kills;
+                        localStorage.setItem('highScore', highScore);
+                    }
+                    highScoreDisplay.textContent = highScore;
+                    finalKillsDisplay.textContent = kills;
+                    gameOverDiv.style.display = 'block';
+                    ensureSlipperCursor();
+                }
+            }
+
+            ctx.clearRect(0, 0, width, height);
+            cockroaches.forEach(c => c.draw());
+            misses.forEach(m => m.draw());
+            messages.forEach(m => m.draw());
+            cockroaches = cockroaches.filter(c => c.update(deltaTime));
+            misses = misses.filter(m => m.update(deltaTime));
+            messages = messages.filter(m => m.update(deltaTime));
+
+            requestAnimationFrame(gameLoop);
+        }
+
+        setInterval(() => {
+            if (!gameOver && gameStarted) {
+                updateSpawnDifficulty();
+            }
+        }, 10000);
+
+        bgMusic.addEventListener('error', (e) => {
+            console.error('Error loading background music:', e);
+        });
+        killSound.addEventListener('error', (e) => {
+            console.error('Error loading kill sound:', e);
+        });
+
+        images.slipper.onload = () => {
+            console.log('Slipper cursor image loaded successfully');
+            ensureSlipperCursor();
+        };
+        images.slipper.onerror = () => {
+            console.error('Error loading slipper cursor image; check path or file format');
+            // Do not override cursor to avoid losing custom cursor
+        };
+
+        images.cockroach.onload = () => {
+            requestAnimationFrame(gameLoop);
+        };
+
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js').catch(err => console.error('Service Worker registration failed:', err));
+            });
+        }
+
+        resetGame(false);
+    </script>
+</body>
+</html>
