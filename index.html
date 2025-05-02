@@ -11,7 +11,7 @@
         body {
             margin: 0;
             overflow: hidden;
-            background: #2b2b2b; /* Dark gray background */
+            background: #2b2b2b;
             font-family: Arial, sans-serif;
         }
         canvas {
@@ -20,23 +20,23 @@
             height: 100%;
         }
         .slipper-cursor {
-            cursor: url('assets/slipper_32.png') 16 16, auto !important;
+            cursor: url('assets/slipper_64.png') 32 32, url('assets/icon.png') 16 16, auto !important;
         }
         @media (max-width: 600px) {
             .slipper-cursor {
-                cursor: url('assets/slipper_32.png') 12 12, auto !important;
+                cursor: url('assets/slipper_64.png') 24 24, url('assets/icon.png') 12 12, auto !important;
             }
         }
         @media (min-width: 1200px) {
             .slipper-cursor {
-                cursor: url('assets/slipper_32.png') 20 20, auto !important;
+                cursor: url('assets/slipper_64.png') 40 40, url('assets/icon.png') 20 20, auto !important;
             }
         }
         #ui {
             position: absolute;
             top: 1vw;
             left: 1vw;
-            color: #b0b0b0; /* Light gray text */
+            color: #b0b0b0;
             display: inline-block;
             vertical-align: middle;
             font-size: clamp(12px, 2.5vw, 16px);
@@ -46,7 +46,7 @@
             top: 1vw;
             right: 1vw;
             padding: clamp(6px, 1vw, 8px) clamp(10px, 1.5vw, 12px);
-            background: #4a2f1a; /* Deep muted brown button */
+            background: #4a2f1a;
             color: white;
             border: none;
             border-radius: 3px;
@@ -56,7 +56,7 @@
             font-size: clamp(12px, 2vw, 14px);
         }
         #muteBtn:hover {
-            background: #5c3a22; /* Lighter muted brown on hover */
+            background: #5c3a22;
         }
         #offline {
             display: none;
@@ -64,7 +64,7 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            background: rgba(20, 20, 20, 0.8); /* Dark gray semi-transparent */
+            background: rgba(20, 20, 20, 0.8);
             color: white;
             padding: clamp(15px, 3vw, 20px);
             border-radius: 5px;
@@ -77,7 +77,7 @@
             transform: translateX(-50%);
             font-size: clamp(18px, 4vw, 24px);
             font-weight: bold;
-            color: #b0b0b0; /* Light gray text */
+            color: #b0b0b0;
             text-align: center;
             display: inline-block;
             vertical-align: middle;
@@ -89,7 +89,7 @@
             left: 50%;
             transform: translateX(-50%);
             font-size: clamp(12px, 2.5vw, 16px);
-            color: #b0b0b0; /* Light gray text */
+            color: #b0b0b0;
             text-align: center;
             max-width: 90%;
         }
@@ -99,7 +99,7 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            background: rgba(20, 20, 20, 0.8); /* Dark gray semi-transparent */
+            background: rgba(20, 20, 20, 0.8);
             color: white;
             padding: clamp(15px, 3vw, 20px);
             border-radius: 5px;
@@ -112,7 +112,7 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            background: rgba(20, 20, 20, 0.8); /* Dark gray semi-transparent */
+            background: rgba(20, 20, 20, 0.8);
             color: white;
             padding: clamp(15px, 3vw, 20px);
             border-radius: 5px;
@@ -129,7 +129,7 @@
         #startBtn {
             margin-top: 10px;
             padding: clamp(8px, 1.5vw, 10px) clamp(15px, 2.5vw, 20px);
-            background: #4a2f1a; /* Deep muted brown button */
+            background: #4a2f1a;
             color: white;
             border: none;
             border-radius: 5px;
@@ -137,12 +137,12 @@
             font-size: clamp(14px, 2.5vw, 16px);
         }
         #startBtn:hover {
-            background: #5c3a22; /* Lighter muted brown on hover */
+            background: #5c3a22;
         }
         #playAgainBtn {
             margin-top: 10px;
             padding: clamp(8px, 1.5vw, 10px) clamp(15px, 2.5vw, 20px);
-            background: #4a2f1a; /* Deep muted brown button */
+            background: #4a2f1a;
             color: white;
             border: none;
             border-radius: 5px;
@@ -153,7 +153,7 @@
             margin-right: auto;
         }
         #playAgainBtn:hover {
-            background: #5c3a22; /* Lighter muted brown on hover */
+            background: #5c3a22;
         }
         #highScore {
             font-size: clamp(16px, 3.5vw, 20px);
@@ -201,17 +201,17 @@
 
         let width, height, cockroaches = [], kills = 0, time = 90 * 1000, spawnRate = 2000, spawnCount = 1;
         let isMuted = false, gameOver = false, gameStarted = false;
-        let misses = []; // Array for "Miss" texts
-        let messages = []; // Array for spawn rate messages
-        const GAME_DURATION = 90 * 1000; // 90 seconds
-        let COCKROACH_LIFETIME = 1000; // 1 second, adjustable
-        const SPAWN_STAGGER_DELAY = 300; // 300ms between spawns
-        const DISAPPEARANCE_MIN_INTERVAL = 300; // 300ms min for disappearance
-        const DISAPPEARANCE_MAX_INTERVAL = 500; // 500ms max for disappearance
-        const FADE_DURATION = 600; // 600ms fade-out for dead cockroaches
-        const POPUP_DURATION = 600; // 600ms pop-up animation for spawning
-        const MISS_DURATION = 1200; // 1200ms for "Miss" text fade-out
-        const MESSAGE_DURATION = 2000; // 2000ms for spawn rate message fade-out
+        let misses = [];
+        let messages = [];
+        const GAME_DURATION = 90 * 1000;
+        let COCKROACH_LIFETIME = 1000;
+        const SPAWN_STAGGER_DELAY = 300;
+        const DISAPPEARANCE_MIN_INTERVAL = 300;
+        const DISAPPEARANCE_MAX_INTERVAL = 500;
+        const FADE_DURATION = 600;
+        const POPUP_DURATION = 600;
+        const MISS_DURATION = 1200;
+        const MESSAGE_DURATION = 2000;
         let highScore = localStorage.getItem('highScore') ? parseInt(localStorage.getItem('highScore')) : 0;
         let removalQueue = [];
         let isProcessingQueue = false;
@@ -220,7 +220,6 @@
         function ensureSlipperCursor() {
             document.body.classList.add('slipper-cursor');
             canvas.classList.add('slipper-cursor');
-            // Debug: Log current cursor style
             console.log('Body cursor style:', getComputedStyle(document.body).cursor);
             console.log('Canvas cursor style:', getComputedStyle(canvas).cursor);
         }
@@ -233,7 +232,6 @@
             ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
             canvas.style.width = `${width}px`;
             canvas.style.height = `${height}px`;
-            // Adjust spawn rate and lifetime for smaller screens
             spawnRate = width < 600 ? 2500 : 2000;
             COCKROACH_LIFETIME = width < 600 ? 1200 : 1000;
             ensureSlipperCursor();
@@ -249,11 +247,11 @@
         };
         images.cockroach.src = 'assets/cockroach.png';
         images.deadCockroach.src = 'assets/dead_cockroach.png';
-        images.slipper.src = 'assets/slipper_32.png'; // Use 'slipper.png' if not resized
+        images.slipper.src = 'assets/slipper_64.png';
 
         class Cockroach {
             constructor() {
-                this.size = Math.min(Math.max(30, 0.05 * width), 60); // 5vw, clamped between 30px and 60px
+                this.size = Math.min(Math.max(30, 0.05 * width), 60);
                 this.x = Math.random() * (width - this.size);
                 this.y = Math.random() * (height - this.size);
                 this.isDead = false;
@@ -322,7 +320,7 @@
                 ctx.save();
                 ctx.globalAlpha = this.opacity;
                 ctx.font = 'bold 24px Arial';
-                ctx.fillStyle = '#ff4040'; // Brighter red for miss text
+                ctx.fillStyle = '#ff4040';
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'middle';
                 ctx.shadowColor = 'black';
@@ -351,7 +349,7 @@
                 ctx.save();
                 ctx.globalAlpha = this.opacity;
                 ctx.font = `bold ${clamp(20, 4 * width / 100, 24)}px Arial`;
-                ctx.fillStyle = 'red'; // Red for faster spawn message
+                ctx.fillStyle = 'red';
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'middle';
                 ctx.fillText(this.text, this.x, this.y);
@@ -552,7 +550,6 @@
         };
         images.slipper.onerror = () => {
             console.error('Error loading slipper cursor image; check path or file format');
-            // Do not override cursor to avoid losing custom cursor
         };
 
         images.cockroach.onload = () => {
